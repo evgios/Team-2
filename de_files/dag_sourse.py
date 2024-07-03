@@ -12,6 +12,6 @@ with DAG(
     get_all_schemas = SQLExecuteQueryOperator(
     task_id="get_all_schemas",
     conn_id="sourse_connect",
-    sql='SELECT * FROM [базы_данных]',
+    sql='SELECT * FROM source_data."базы данных"',
     show_return_value_in_logs=True
 )
