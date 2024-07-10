@@ -1,15 +1,15 @@
 CREATE TABLE dds.сотрудники_дар (
-	"User ID" varchar(50) NULL PRIMARY KEY,
-	"Дата рождения" text NULL,
+	"User ID" int4 NULL PRIMARY KEY,
+	"Дата рождения" date NULL,
 	"Активность" boolean NULL,
 	"Пол" text NULL,
 	"Фамилия" text NULL,
 	"Имя" text NULL,
-	"Последняя авторизация" text NULL,
+	"Последняя авторизация" date NULL,
 	"Должность" text NULL,
 	"ЦФО" text NULL,
-	"Дата регистрации" text NULL,
-	"Дата изменения" text NULL,
+	"Дата регистрации" date NULL,
+	"Дата изменения" date NULL,
 	"Подразделения" text NULL,
 	"E-Mail" text NULL,
 	"Логин" text NULL,
@@ -19,29 +19,25 @@ CREATE TABLE dds.сотрудники_дар (
 CREATE TABLE dds.уровень_образования (
 	"Название" text NULL PRIMARY KEY,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL
 );
 CREATE TABLE dds.языки (
 	"Название" text NULL PRIMARY KEY,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL
 );
 CREATE TABLE dds.уровни_владения_ин (
 	"Название" text NULL PRIMARY KEY,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL
 );
 CREATE TABLE dds.языки_пользователей (
-	"User ID" varchar(50) NULL,
+	"User ID" int4 NULL,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL PRIMARY KEY,
 	"Язык" text NULL,
 	"Уровень знаний ин. языка" text NULL,
@@ -55,8 +51,7 @@ CREATE TABLE dds.языки_пользователей (
 CREATE TABLE dds.сертификаты_пользователей (
 	"User ID" int4 NULL,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL PRIMARY KEY,
 	"Год сертификата" int4 NULL,
 	"Наименование сертификата" text NULL,
@@ -65,22 +60,19 @@ CREATE TABLE dds.сертификаты_пользователей (
 CREATE TABLE dds.уровни_знаний (
 	"Название" text NULL PRIMARY KEY,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL
 );
 CREATE TABLE dds.базы_данных (
 	"Название" varchar(50) NULL PRIMARY KEY,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL
 );
 CREATE TABLE dds.базы_данных_и_уровень_знаний_сотру (
-	"User ID" varchar(50) NULL,
+	"User ID" int4 NULL,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL PRIMARY KEY,
 	"Базы данных" varchar(50) NULL,
 	"Дата" date NULL,
@@ -95,15 +87,13 @@ CREATE TABLE dds.базы_данных_и_уровень_знаний_сотру
 CREATE TABLE dds.инструменты (
 	"Название" varchar(50) PRIMARY KEY,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL
 );
 CREATE TABLE dds.инструменты_и_уровень_знаний_сотр (
-	"User ID" varchar(50) NULL,
+	"User ID" int4 NULL,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL PRIMARY KEY,
 	"Дата" date NULL,
 	"Инструменты" varchar(64) NULL,
@@ -118,22 +108,19 @@ CREATE TABLE dds.инструменты_и_уровень_знаний_сотр 
 CREATE TABLE dds.отрасли (
 	"Название" varchar(50) NULL PRIMARY KEY,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL
 );
 CREATE TABLE dds.уровни_знаний_в_отрасли (
 	"Название" text NULL PRIMARY KEY,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL
 );
 CREATE TABLE dds.опыт_сотрудника_в_отраслях (
-	"User ID" varchar(50) NULL,
+	"User ID" int4 NULL,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL PRIMARY KEY,
 	"Дата" date NULL,
 	"Отрасли" varchar(50) NULL,
@@ -146,10 +133,9 @@ CREATE TABLE dds.опыт_сотрудника_в_отраслях (
         REFERENCES dds.сотрудники_дар("User ID")
 );
 CREATE TABLE dds.образование_пользователей (
-	"User ID" varchar(50) NULL,
+	"User ID" int4 NULL,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL PRIMARY KEY,
 	"Уровень образования" text NULL,
 	"Название учебного заведения" text NULL,
@@ -166,15 +152,13 @@ CREATE TABLE dds.образование_пользователей (
 CREATE TABLE dds.платформы (
 	"Название" varchar(50) NULL PRIMARY KEY,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL
 );
 CREATE TABLE dds.платформы_и_уровень_знаний_сотруд (
-	"User ID" varchar(50) NULL,
+	"User ID" int4 NULL,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL PRIMARY KEY,
 	"Дата" date NULL,
 	"Платформы" varchar(64) NULL,
@@ -189,22 +173,19 @@ CREATE TABLE dds.платформы_и_уровень_знаний_сотруд 
 CREATE TABLE dds.предметная_область (
 	"Название" varchar(50) NULL PRIMARY KEY,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL
 );
 CREATE TABLE dds.уровни_знаний_в_предметной_област (
 	"Название" text NULL PRIMARY KEY,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL
 );
 CREATE TABLE dds.опыт_сотрудника_в_предметных_обла (
-	"User ID" varchar(50) NULL,
+	"User ID" int4 NULL,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL PRIMARY KEY,
 	"Дата" date NULL,
 	"Предметные области" varchar(50) NULL,
@@ -219,15 +200,13 @@ CREATE TABLE dds.опыт_сотрудника_в_предметных_обла 
 CREATE TABLE dds.среды_разработки (
 	"Название" text NULL PRIMARY KEY,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL
 );
 CREATE TABLE dds.среды_разработки_и_уровень_знаний_ (
-	"User ID" varchar(50) NULL,
+	"User ID" int4 NULL,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL PRIMARY KEY,
 	"Дата" date NULL,
 	"Среды разработки" varchar(50) NULL,
@@ -242,15 +221,13 @@ CREATE TABLE dds.среды_разработки_и_уровень_знаний_
 CREATE TABLE dds.типы_систем (
 	"Название" text NULL PRIMARY KEY,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL
 );
 CREATE TABLE dds.типы_систем_и_уровень_знаний_сотру (
-	"User ID" varchar(50) NULL,
+	"User ID" int4 NULL,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL PRIMARY KEY,
 	"Дата" date NULL,
 	"Типы систем" varchar(64) NULL,
@@ -265,15 +242,13 @@ CREATE TABLE dds.типы_систем_и_уровень_знаний_сотру
 CREATE TABLE dds.фреймворки (
 	"Название" text NULL PRIMARY KEY,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL
 );
 CREATE TABLE dds.фреймворки_и_уровень_знаний_сотру (
-	"User ID" varchar(50) NULL,
+	"User ID" int4 NULL,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL PRIMARY KEY,
 	"Дата" date NULL,
 	"Уровень знаний" text NULL,
@@ -288,15 +263,13 @@ CREATE TABLE dds.фреймворки_и_уровень_знаний_сотру 
 CREATE TABLE dds.языки_программирования (
 	"Название" text NULL PRIMARY KEY,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL
 );
 CREATE TABLE dds.языки_программирования_и_уровень (
-	"User ID" varchar(50) NULL,
+	"User ID" int4 NULL,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL PRIMARY KEY,
 	"Дата" date NULL,
 	"Уровень знаний" text NULL,
@@ -311,15 +284,13 @@ CREATE TABLE dds.языки_программирования_и_уровень (
 CREATE TABLE dds.технологии (
 	"Название" text NULL PRIMARY KEY,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL
 );
 CREATE TABLE dds.технологии_и_уровень_знаний_сотру (
-	"User ID" varchar(50) NULL,
+	"User ID" int4 NULL,
 	"Активность" boolean NULL,
-	"Сорт." int4 NULL,
-	"Дата изм." timestamp NULL,
+	"Дата изм." date NULL,
 	"ID" int4 NULL PRIMARY KEY,
 	"Дата" date NULL,
 	"Технологии" text NULL,
@@ -332,7 +303,7 @@ CREATE TABLE dds.технологии_и_уровень_знаний_сотру 
         REFERENCES dds.сотрудники_дар("User ID")
 );
 CREATE TABLE dds.резюме_дар (
-	"User ID" varchar(50) NULL,
+	"User ID" int4 NULL,
 	"Resume ID" int4 NULL,
 	"Активность" boolean NULL,
 	"Образование" int4 NULL,
@@ -376,4 +347,4 @@ CREATE TABLE dds.резюме_дар (
         REFERENCES dds.языки_программирования_и_уровень("ID"),
 	CONSTRAINT FK_teh FOREIGN KEY("Технологии")
         REFERENCES dds.технологии_и_уровень_знаний_сотру("ID")
-);		
+);
