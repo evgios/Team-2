@@ -1,0 +1,7 @@
+sourse_connect:
+  conn_type: postgres
+  host: 10.82.0.4
+  schema: sourse
+  login: etl_user_2
+  password: _CosU;x0
+  port: 5432
