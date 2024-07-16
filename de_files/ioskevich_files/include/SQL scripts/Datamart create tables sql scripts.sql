@@ -61,13 +61,6 @@ CREATE TABLE datamart.платформы_и_уровень_знаний_сотр
 	"Тип навыка" varchar(50) null	
 );
 
-CREATE TABLE datamart.опыт_сотрудника_в_предметных_обла (
-	"User ID" int4 NULL,
-	"Дата" date NULL,
-	"Предметные области" varchar(50) NULL,
-	"Уровень знаний в предметной облас" varchar(128) NULL
-);
-
 CREATE TABLE datamart.среды_разработки_и_уровень_знаний_ (
 	"User ID" int4 NULL,
 	"Дата" date NULL,
