@@ -102,6 +102,28 @@ WHERE "базы_данных_и_уровень_знаний_сотру"."User ID
         "базы_данных_и_уровень_знаний_сотру"."Дата" = t."Дата" AND
         "Уровень знаний" = 'Junior';
 
+insert into datamart.базы_данных_и_уровень_знаний_сотру(
+	"User ID",
+    "Базы данных",
+	"Дата",
+    "Уровень знаний",
+    "Тип навыка"
+    )
+select
+    distinct
+    "User ID",
+    "Базы данных",
+	date_actual as "Дата",
+    "Уровень знаний",
+    "Тип навыка"
+from datamart."базы_данных_и_уровень_знаний_сотру" as bd
+full join public.d_date as d
+    on d.year_actual >= extract(year from bd."Дата")
+where
+    d.date_actual <= now()
+order by
+    date_actual;
+
 INSERT INTO datamart."инструменты_и_уровень_знаний_сотр"
 	("User ID",
 	"Дата",
@@ -134,6 +156,28 @@ WHERE "инструменты_и_уровень_знаний_сотр"."User ID"
         "инструменты_и_уровень_знаний_сотр"."Инструменты" = t3."Инструменты" AND
         "инструменты_и_уровень_знаний_сотр"."Дата" = t3."Дата" AND
         "инструменты_и_уровень_знаний_сотр"."Уровень знаний" = 'Junior';
+
+insert into datamart.инструменты_и_уровень_знаний_сотр (
+	"User ID",
+    "Инструменты",
+	"Дата",
+    "Уровень знаний",
+    "Тип навыка"
+    )
+select
+    distinct
+    "User ID",
+    "Инструменты",
+	date_actual as "Дата",
+    "Уровень знаний",
+    "Тип навыка"
+from datamart."инструменты_и_уровень_знаний_сотр" as inst
+full join public.d_date as d
+    on d.year_actual >= extract(year from inst."Дата")
+where
+    d.date_actual <= now()
+order by
+    date_actual;
 
 INSERT INTO datamart."опыт_сотрудника_в_отраслях" 
 	("User ID", 
@@ -179,6 +223,26 @@ WHERE "опыт_сотрудника_в_отраслях"."User ID" = t."User ID
         "опыт_сотрудника_в_отраслях"."Отрасли" = t."Отрасли" AND
         "опыт_сотрудника_в_отраслях"."Дата" = t."Дата" AND
         "Уровень знаний в отрасли" = 'Junior';
+
+insert into datamart.опыт_сотрудника_в_отраслях (
+	"User ID",
+    "Отрасли",
+	"Дата",
+    "Уровень знаний в отрасли"
+    )
+select
+    distinct
+    "User ID",
+    "Отрасли",
+	date_actual as "Дата",
+    "Уровень знаний в отрасли"
+from datamart."опыт_сотрудника_в_отраслях" as exp
+full join public.d_date as d
+    on d.year_actual >= extract(year from exp."Дата")
+where
+    d.date_actual <= now()
+order by
+    date_actual;
 
 INSERT INTO datamart."образование_пользователей" 
 	("User ID", 
@@ -248,6 +312,28 @@ WHERE "платформы_и_уровень_знаний_сотруд"."User ID"
         "платформы_и_уровень_знаний_сотруд"."Дата" = t."Дата" AND
         "Уровень знаний" = 'Junior';
 
+insert into datamart.платформы_и_уровень_знаний_сотруд (
+	"User ID",
+    "Платформы",
+	"Дата",
+    "Уровень знаний",
+    "Тип навыка"
+    )
+select
+    distinct
+    "User ID",
+    "Платформы",
+	date_actual as "Дата",
+    "Уровень знаний",
+    "Тип навыка"
+from datamart."платформы_и_уровень_знаний_сотруд" as pl
+full join public.d_date as d
+    on d.year_actual >= extract(year from pl."Дата")
+where
+    d.date_actual <= now()
+order by
+    date_actual;
+
 INSERT INTO datamart."среды_разработки_и_уровень_знаний_"
 	("User ID", 
 	"Дата", 
@@ -279,6 +365,28 @@ WHERE "среды_разработки_и_уровень_знаний_"."User ID
         "среды_разработки_и_уровень_знаний_"."Среды разработки" = t."Среды разработки" AND
         "среды_разработки_и_уровень_знаний_"."Дата" = t."Дата" AND
         "Уровень знаний" = 'Junior';
+
+insert into datamart.среды_разработки_и_уровень_знаний_ (
+	"User ID",
+    "Среды разработки",
+	"Дата",
+    "Уровень знаний",
+    "Тип навыка"
+    )
+select
+    distinct
+    "User ID",
+    "Среды разработки",
+	date_actual as "Дата",
+    "Уровень знаний",
+    "Тип навыка"
+from datamart."среды_разработки_и_уровень_знаний_" as sr
+full join public.d_date as d
+    on d.year_actual >= extract(year from sr."Дата")
+where
+    d.date_actual <= now()
+order by
+    date_actual;
 
 INSERT INTO datamart."типы_систем_и_уровень_знаний_сотру" 
 	("User ID", 
@@ -312,6 +420,28 @@ WHERE "типы_систем_и_уровень_знаний_сотру"."User ID
         "типы_систем_и_уровень_знаний_сотру"."Дата" = t."Дата" AND
         "Уровень знаний" = 'Junior';
 
+insert into datamart.типы_систем_и_уровень_знаний_сотру (
+	"User ID",
+    "Типы систем",
+	"Дата",
+    "Уровень знаний",
+    "Тип навыка"
+    )
+select
+    distinct
+    "User ID",
+    "Типы систем",
+	date_actual as "Дата",
+    "Уровень знаний",
+    "Тип навыка"
+from datamart."типы_систем_и_уровень_знаний_сотру" as ts
+full join public.d_date as d
+    on d.year_actual >= extract(year from ts."Дата")
+where
+    d.date_actual <= now()
+order by
+    date_actual;
+
 INSERT INTO datamart."фреймворки_и_уровень_знаний_сотру" 
 	("User ID", 
 	"Дата", 
@@ -343,6 +473,28 @@ WHERE "фреймворки_и_уровень_знаний_сотру"."User ID"
         "фреймворки_и_уровень_знаний_сотру"."Фреймворки" = t."Фреймворки" AND
         "фреймворки_и_уровень_знаний_сотру"."Дата" = t."Дата" AND
         "Уровень знаний" = 'Junior';
+
+insert into datamart.фреймворки_и_уровень_знаний_сотру (
+	"User ID",
+    "Фреймворки",
+	"Дата",
+    "Уровень знаний",
+    "Тип навыка"
+    )
+select
+    distinct
+    "User ID",
+    "Фреймворки",
+	date_actual as "Дата",
+    "Уровень знаний",
+    "Тип навыка"
+from datamart."фреймворки_и_уровень_знаний_сотру" as fr
+full join public.d_date as d
+    on d.year_actual >= extract(year from fr."Дата")
+where
+    d.date_actual <= now()
+order by
+    date_actual;
 
 INSERT INTO datamart."языки_программирования_и_уровень" 
 	("User ID", 
@@ -376,6 +528,28 @@ WHERE "языки_программирования_и_уровень"."User ID" 
         "языки_программирования_и_уровень"."Дата" = t."Дата" AND
         "Уровень знаний" = 'Junior';
 
+insert into datamart.языки_программирования_и_уровень (
+	"User ID",
+    "Языки программирования",
+	"Дата",
+    "Уровень знаний",
+    "Тип навыка"
+    )
+select
+    distinct
+    "User ID",
+    "Языки программирования",
+	date_actual as "Дата",
+    "Уровень знаний",
+    "Тип навыка"
+from datamart."языки_программирования_и_уровень" as lan
+full join public.d_date as d
+    on d.year_actual >= extract(year from lan."Дата")
+where
+    d.date_actual <= now()
+order by
+    date_actual;
+
 INSERT INTO datamart."технологии_и_уровень_знаний_сотру" 
 	("User ID", 
 	"Дата", 
@@ -407,3 +581,25 @@ WHERE "технологии_и_уровень_знаний_сотру"."User ID"
         "технологии_и_уровень_знаний_сотру"."Технологии" = t."Технологии" AND
         "технологии_и_уровень_знаний_сотру"."Дата" = t."Дата" AND
         "Уровень знаний" = 'Junior';
+
+insert into datamart.технологии_и_уровень_знаний_сотру (
+	"User ID",
+    "Технологии",
+	"Дата",
+    "Уровень знаний",
+    "Тип навыка"
+    )
+select
+    distinct
+    "User ID",
+    "Технологии",
+	date_actual as "Дата",
+    "Уровень знаний",
+    "Тип навыка"
+from datamart."технологии_и_уровень_знаний_сотру" as t
+full join public.d_date as d
+    on d.year_actual >= extract(year from t."Дата")
+where
+    d.date_actual <= now()
+order by
+    date_actual;
