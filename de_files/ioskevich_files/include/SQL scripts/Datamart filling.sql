@@ -344,16 +344,16 @@ WHERE "платформы_и_уровень_знаний_сотруд"."User ID"
 
 insert into datamart.платформы_и_уровень_знаний_сотруд (
 	"User ID",
-    "Платформы",
 	"Дата",
-    "Уровень знаний",
+    "Платформы",
+	"Уровень знаний",
     "Тип навыка"
     )
 select
     distinct
     "User ID",
+    date_actual as "Дата",
     "Платформы",
-	date_actual as "Дата",
     "Уровень знаний",
     "Тип навыка"
 from datamart."платформы_и_уровень_знаний_сотруд" as pl
@@ -398,21 +398,21 @@ WHERE "среды_разработки_и_уровень_знаний_"."User ID
 
 insert into datamart.среды_разработки_и_уровень_знаний_ (
 	"User ID",
-    "Среды разработки",
 	"Дата",
-    "Уровень знаний",
+    "Среды разработки",
+	"Уровень знаний",
     "Тип навыка"
     )
 select
     distinct
     "User ID",
+    date_actual as "Дата",
     "Среды разработки",
-	date_actual as "Дата",
     "Уровень знаний",
     "Тип навыка"
-from datamart."среды_разработки_и_уровень_знаний_" as sr
+from datamart.среды_разработки_и_уровень_знаний_ as s
 full join public.d_date as d
-    on d.year_actual >= extract(year from sr."Дата")
+    on d.year_actual >= extract(year from s."Дата")
 where
     d.date_actual <= now()
 order by
@@ -452,16 +452,16 @@ WHERE "типы_систем_и_уровень_знаний_сотру"."User ID
 
 insert into datamart.типы_систем_и_уровень_знаний_сотру (
 	"User ID",
-    "Типы систем",
 	"Дата",
+    "Типы систем",
     "Уровень знаний",
     "Тип навыка"
     )
 select
     distinct
     "User ID",
+    date_actual as "Дата",
     "Типы систем",
-	date_actual as "Дата",
     "Уровень знаний",
     "Тип навыка"
 from datamart."типы_систем_и_уровень_знаний_сотру" as ts
@@ -506,21 +506,21 @@ WHERE "фреймворки_и_уровень_знаний_сотру"."User ID"
 
 insert into datamart.фреймворки_и_уровень_знаний_сотру (
 	"User ID",
-    "Фреймворки",
 	"Дата",
-    "Уровень знаний",
+    "Фреймворки",
+	"Уровень знаний",
     "Тип навыка"
     )
 select
     distinct
     "User ID",
+    date_actual as "Дата",
     "Фреймворки",
-	date_actual as "Дата",
     "Уровень знаний",
     "Тип навыка"
-from datamart."фреймворки_и_уровень_знаний_сотру" as fr
+from datamart.фреймворки_и_уровень_знаний_сотру as f
 full join public.d_date as d
-    on d.year_actual >= extract(year from fr."Дата")
+    on d.year_actual >= extract(year from f."Дата")
 where
     d.date_actual <= now()
 order by
