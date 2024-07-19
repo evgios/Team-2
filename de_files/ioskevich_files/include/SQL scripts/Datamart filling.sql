@@ -1,635 +1,437 @@
-INSERT INTO datamart."сотрудники_дар" (
-	"User ID",
-	"Активность",
-	"Должность",
-	"Роль сотрудника",
-	"Уровень сотрудника"
+INSERT INTO datamart.dim_date
+SELECT TO_CHAR(datum,'yyyymmdd')::INT AS date_dim_id,
+       datum AS date_actual,
+       EXTRACT(epoch FROM datum) AS epoch,
+       TO_CHAR(datum,'Dth') AS day_suffix,
+       TO_CHAR(datum,'Day') AS day_name,
+       EXTRACT(isodow FROM datum) AS day_of_week,
+       EXTRACT(DAY FROM datum) AS day_of_month,
+       datum - DATE_TRUNC('quarter',datum)::DATE +1 AS day_of_quarter,
+       EXTRACT(doy FROM datum) AS day_of_year,
+       TO_CHAR(datum,'W')::INT AS week_of_month,
+       EXTRACT(week FROM datum) AS week_of_year,
+       TO_CHAR(datum,'YYYY"-W"IW-D') AS week_of_year_iso,
+       EXTRACT(MONTH FROM datum) AS month_actual,
+       TO_CHAR(datum,'Month') AS month_name,
+       TO_CHAR(datum,'Mon') AS month_name_abbreviated,
+       EXTRACT(quarter FROM datum) AS quarter_actual,
+       CASE
+         WHEN EXTRACT(quarter FROM datum) = 1 THEN 'First'
+         WHEN EXTRACT(quarter FROM datum) = 2 THEN 'Second'
+         WHEN EXTRACT(quarter FROM datum) = 3 THEN 'Third'
+         WHEN EXTRACT(quarter FROM datum) = 4 THEN 'Fourth'
+       END AS quarter_name,
+       EXTRACT(isoyear FROM datum) AS year_actual,
+       datum +(1 -EXTRACT(isodow FROM datum))::INT AS first_day_of_week,
+       datum +(7 -EXTRACT(isodow FROM datum))::INT AS last_day_of_week,
+       datum +(1 -EXTRACT(DAY FROM datum))::INT AS first_day_of_month,
+       (DATE_TRUNC('MONTH',datum) +INTERVAL '1 MONTH - 1 day')::DATE AS last_day_of_month,
+       DATE_TRUNC('quarter',datum)::DATE AS first_day_of_quarter,
+       (DATE_TRUNC('quarter',datum) +INTERVAL '3 MONTH - 1 day')::DATE AS last_day_of_quarter,
+       TO_DATE(EXTRACT(isoyear FROM datum) || '-01-01','YYYY-MM-DD') AS first_day_of_year,
+       TO_DATE(EXTRACT(isoyear FROM datum) || '-12-31','YYYY-MM-DD') AS last_day_of_year,
+       TO_CHAR(datum,'mmyyyy') AS mmyyyy,
+       TO_CHAR(datum,'mmddyyyy') AS mmddyyyy,
+       CASE
+         WHEN EXTRACT(isodow FROM datum) IN (6,7) THEN FALSE
+         ELSE FALSE
+       END AS weekend_indr
+FROM (SELECT '1997-07-02'::DATE+ SEQUENCE.DAY AS datum
+      FROM GENERATE_SERIES (0,29219) AS SEQUENCE (DAY)
+      GROUP BY SEQUENCE.DAY) DQ
+ORDER BY 1;
+
+
+INSERT INTO datamart.dim_employee (
+	"emp_id",
+	"emp_active",
+	"emp_job_title",
+	"emp_role",
+	"emp_level"
 	)
-SELECT "User ID",
-	"Активность",
-	CASE WHEN "Должность" = 'Аналитик,Департамент систем бизнес-аналитики' THEN 'Бизнес-аналитик'
-	when "Должность" = 'старший системный аналитик' then 'Старший системный аналитик'
-	ELSE "Должность"
-	END as "Должность",
-	CASE WHEN "Должность" like '%уководитель%' THEN 'Руководитель проектов'
-	WHEN "Должность" like ANY (ARRAY['Аналитик', 'Старший аналитик', 'Аналитик технической поддержки', 
-	'Ведущий аналитик', 'Ведущий системный аналитик', 'Младший аналитик', 'Младший системный аналитик',
-	'Системный аналитик', 'старший системный аналитик', 'Эксперт-аналитик', 'Эксперт по анализу данных']) 
-	THEN 'Системный аналитик'
-	WHEN "Должность" like ANY (ARRAY['%изнес-аналитик', 'Пресейл-аналитик', 
-	'Аналитик,Департамент систем бизнес-аналитики', 'Старший бизнес-аналитик', 'Бизнес эксперт']) 
-	THEN 'Бизнес-аналитик'
-	WHEN "Должность" like ANY (ARRAY['Старший инженер данных', 'Инженер данных']) THEN 'Инженер данных'
-	WHEN "Должность" like '%рхитектор%' THEN 'Архитектор'
-	WHEN "Должность" like ANY (ARRAY['Ведущий разработчик', 'Младший разработчик', 
-	'Разработчик', 'Младший разработчик BI', 'Разработчик систем бизнес-аналитики', 'Разработчик хранилищ',
-	'Разработчик-эксперт', 'Старший разработчик', 'Старший консультант-разработчик']) THEN 'Разработчик'
-	WHEN "Должность" = 'Инженер данных' THEN 'Инженер данных'
-	WHEN "Должность" like ANY (ARRAY['Младший инженер по тестированию', 'Младший тестировщик',
-	'Старший инженер по тестированию', 'Тестировщик']) THEN 'Тестировщик'
-	ELSE 'Другое'
-	END AS "Роль сотрудника",
-	CASE WHEN "Должность" like 'Младший%' THEN 'Junior'
-	WHEN "Должность" like (ARRAY['Аналитик', 'Аналитик технической поддержки',
-	'Системный аналитик', 'Разработчик', 'Разработчик систем бизнес-аналитики',
-	'Разработчик хранилищ', 'Бизнес-аналитик', 'Пресейл-аналитик',
-	'Аналитик,Департамент систем бизнес-аналитики', 'Архитектор', 'Инженер по тестированию',
-	'Тестировщик', 'Архитектор UI/UX', 'Архитектор решений', 'Инженер данных',
-	'Системный архитектор'])  THEN 'Middle'
-	WHEN "Должность" LIKE ANY (ARRAY['старший%', 'Старший%','Эксперт%', '%ксперт'])
-	THEN 'Senior'
-	WHEN "Должность" like ANY (ARRAY['%едущи%', 'Технический лидер']) 
-	AND "Должность" != 'Ведущий менеджер по персоналу' THEN 'Lead'
-	WHEN "Должность" like '%уководитель%' THEN 'TeamLead'
-	ELSE 'Роль не определена'
-	END AS "Уровень сотрудника"
-FROM dds."сотрудники_дар"
-WHERE "Должность" != '-';
+SELECT
+	"user_id",
+	"active",
+	"job_title",
+	"emp_role",
+	"emp_level"
+from dds.employees;
 
-INSERT INTO datamart."языки_пользователей" (
-	"User ID",
-	"Дата",
-	"Язык",
-	"Уровень знаний ин. языка"
+INSERT INTO datamart.dim_skill_types (
+    "skill_type",
+    "is_skill",
+    "is_industry"
 )
-SELECT "User ID",
-	"Дата изм.",
-	"Язык",
-	"Уровень знаний ин. языка"
-FROM dds."языки_пользователей";
+values ('Базы данных', 1::boolean, 0::boolean),
+	('Инструменты', 1::boolean, 0::boolean),
+	('Платформы', 1::boolean, 0::boolean),
+	('Технологии', 1::boolean, 0::boolean),
+	('Фреймворки', 1::boolean, 0::boolean),
+	('Языки программирования', 1::boolean, 0::boolean),
+	('Типы систем', 1::boolean, 0::boolean),
+	('Среды разработки', 1::boolean, 0::boolean),
+	('Отрасли', 0::boolean, 1::boolean),
+	('Иностранные языки', 1::boolean, 0::boolean)
 
-INSERT INTO datamart."сертификаты_пользователей" (
-	"User ID",
-	"Год сертификата",
-	"Наименование сертификата"
-)
-SELECT "User ID",
-	"Год сертификата",
-	"Наименование сертификата"
-FROM dds."сертификаты_пользователей";
+insert into datamart.dim_skill_level (
+	"sk_l_id",
+	"skill_level")
+select "id",
+	"name"
+from dds.skill_level;
+insert into datamart.dim_skill_level (
+	"sk_l_id",
+	"skill_level")
+select "id",
+	"name"
+from dds.foreign_languages_level ;
 
-INSERT INTO datamart."базы_данных_и_уровень_знаний_сотру" (
-	"User ID", 
-	"Базы данных", 
-	"Дата", 
-	"Уровень знаний", 
-	"Тип навыка"
-) 
-SELECT distinct
-	"User ID", 
-	"Базы данных",
-	"Дата",
-	case when "Уровень знаний" = 'Novice' OR "Уровень знаний" = 'Данные отсутствуют'
-	then 'Junior'
-	when "Уровень знаний" = 'Expert' then 'Senior'
-	else "Уровень знаний" 
-	end as "Уровень знаний",
-	'Базы данных' as "Тип навыка"
-FROM dds."базы_данных_и_уровень_знаний_сотру";
+insert into datamart.dim_skills (
+	"sk_id",
+	"skill",
+	"sk_type")
+select "id",
+	"name",
+	1
+from dds.databases ;
+insert into datamart.dim_skills (
+	"sk_id",
+	"skill",
+	"sk_type")
+select "id",
+	"name",
+	2
+from dds.instruments ;
+insert into datamart.dim_skills (
+	"sk_id",
+	"skill",
+	"sk_type")
+select "id",
+	"name",
+	3
+from dds.technologies ;
+insert into datamart.dim_skills (
+	"sk_id",
+	"skill",
+	"sk_type")
+select "id",
+	"name",
+	4
+from dds.platforms ;
+insert into datamart.dim_skills (
+	"sk_id",
+	"skill",
+	"sk_type")
+select "id",
+	"name",
+	5
+from dds.frameworks ;
+insert into datamart.dim_skills (
+	"sk_id",
+	"skill",
+	"sk_type")
+select "id",
+	"name",
+	6
+from dds.progr_language ;
+insert into datamart.dim_skills (
+	"sk_id",
+	"skill",
+	"sk_type")
+select "id",
+	"name",
+	7
+from dds.type_of_system ;
+insert into datamart.dim_skills (
+	"sk_id",
+	"skill",
+	"sk_type")
+select "id",
+	"name",
+	8
+from dds.ide ;
+insert into datamart.dim_skills (
+	"sk_id",
+	"skill",
+	"sk_type")
+select "id",
+	"name",
+	9
+from dds.industries ;
+insert into datamart.dim_skills (
+	"sk_id",
+	"skill",
+	"sk_type")
+select "id",
+	"name",
+	10
+from dds.foreign_languages ;
 
-DELETE FROM datamart."базы_данных_и_уровень_знаний_сотру"
-USING (SELECT "User ID",
-	        "Базы данных",
-	        "Дата",
-	         count(*) as "Счетчик дублей"
-	   FROM dds."базы_данных_и_уровень_знаний_сотру"
-	   GROUP BY "User ID",
-	        "Базы данных",
-	        "Дата"
-	   HAVING count(*) > 1) as t
-WHERE "базы_данных_и_уровень_знаний_сотру"."User ID" = t."User ID" AND
-        "базы_данных_и_уровень_знаний_сотру"."Базы данных" = t."Базы данных" AND
-        "базы_данных_и_уровень_знаний_сотру"."Дата" = t."Дата" AND
-        "Уровень знаний" = 'Junior';
-
-insert into datamart.базы_данных_и_уровень_знаний_сотру(
-	"User ID",
-    "Базы данных",
-	"Дата",
-    "Уровень знаний",
-    "Тип навыка"
-    )
+insert into datamart.fact_skills (
+	"sk_f_id",
+	"emp_key",
+	"sk_dim_key",
+	"sk_l_dim_key",
+	"sk_t_dim_key",
+	"is_skill",
+	"is_industry",
+	"date_dim_id")
 select
-    distinct
-    "User ID",
-    "Базы данных",
-	date_actual as "Дата",
-    "Уровень знаний",
-    "Тип навыка"
-from datamart."базы_данных_и_уровень_знаний_сотру" as bd
-full join public.d_date as d
-    on d.year_actual >= extract(year from bd."Дата")
-where
-    d.date_actual <= now()
-order by
-    date_actual;
-
-INSERT INTO datamart."инструменты_и_уровень_знаний_сотр"
-	("User ID",
-	"Дата",
-	"Инструменты",
-	"Уровень знаний",
-	"Тип навыка"
-)
-SELECT distinct "User ID",
-	"Дата",
-	"Инструменты",
-	case when "Уровень знаний" = 'Novice' OR "Уровень знаний" = 'Данные отсутствуют'
-	then 'Junior'
-	when "Уровень знаний" = 'Expert' then 'Senior'
-	else "Уровень знаний"
-	end as "Уровень знаний",
-	'Инструменты' as "Тип навыка"
-FROM dds."инструменты_и_уровень_знаний_сотр";
-
-DELETE FROM datamart."инструменты_и_уровень_знаний_сотр"
-USING (SELECT "User ID",
-	        "Инструменты",
-	        "Дата",
-	         count(*) as "Счетчик дублей"
-	   FROM datamart."инструменты_и_уровень_знаний_сотр"
-	   GROUP BY "User ID",
-	        "Инструменты",
-	        "Дата"
-	   HAVING count(*) > 1) as t3
-WHERE "инструменты_и_уровень_знаний_сотр"."User ID" = t3."User ID" AND
-        "инструменты_и_уровень_знаний_сотр"."Инструменты" = t3."Инструменты" AND
-        "инструменты_и_уровень_знаний_сотр"."Дата" = t3."Дата" AND
-        "инструменты_и_уровень_знаний_сотр"."Уровень знаний" = 'Junior';
-
-insert into datamart.инструменты_и_уровень_знаний_сотр (
-	"User ID",
-    "Инструменты",
-	"Дата",
-    "Уровень знаний",
-    "Тип навыка"
-    )
+	"id",
+	"emp_dim_key",
+	"sk_dim_key",
+	"sk_l_dim_key",
+	"sk_t_dim_key",
+	"is_skill",
+	"is_industry",
+	"date_dim_id"
+from dds.databases_emp_skill_level
+inner join datamart.dim_employee
+on "user_id" = "emp_id"
+inner join datamart.dim_skill_types
+on "skill_type" = "type_of_skill"
+inner join datamart.dim_skills
+on "databases" = "skill"
+inner join datamart.dim_date
+on "date"= "date_actual"
+inner join datamart.dim_skill_level
+on databases_emp_skill_level."skill_level" = dim_skill_level."skill_level"
+where "sk_dim_key" between 1 and 17;
+insert into datamart.fact_skills (
+	"sk_f_id",
+	"emp_key",
+	"sk_dim_key",
+	"sk_l_dim_key",
+	"sk_t_dim_key",
+	"is_skill",
+	"is_industry",
+	"date_dim_id")
 select
-    distinct
-    "User ID",
-    "Инструменты",
-	date_actual as "Дата",
-    "Уровень знаний",
-    "Тип навыка"
-from datamart."инструменты_и_уровень_знаний_сотр" as inst
-full join public.d_date as d
-    on d.year_actual >= extract(year from inst."Дата")
-where
-    d.date_actual <= now()
-order by
-    date_actual;
-
-INSERT INTO datamart."опыт_сотрудника_в_отраслях" 
-	("User ID", 
-	"Отрасли", 
-	"Дата", 
-	"Уровень знаний в отрасли") 
-SELECT distinct "User ID",
-	"Отрасли",
-	"Дата",
-	case when "Уровень знаний в отрасли" = 'Я знаю специфику отрасли' then 'Junior'
-	when "Уровень знаний в отрасли" like 'Я знаю специфику отрасли и%' then 'Middle'
-	when "Уровень знаний в отрасли" like 'Я знаю специфику отрасли,%' then 'Senior'
-	else 'Junior'
-	end as "Уровень знаний в отрасли"
-FROM dds."опыт_сотрудника_в_отраслях";
-
-INSERT INTO datamart."опыт_сотрудника_в_отраслях"
-	("User ID",
-	"Отрасли",
-	"Дата",
-	"Уровень знаний в отрасли")
-SELECT distinct "User ID",
-	"Предметные области",
-	"Дата",
-	case when "Уровень знаний в предметной облас" = 'Я знаю предметную область' then 'Junior'
-	when "Уровень знаний в предметной облас" like 'Я знаю все особенн %' then 'Middle'
-	when "Уровень знаний в предметной облас" like 'Я знаю специфику предметн%' then 'Senior'
-	else 'Junior'
-	end as "Уровень знаний в предметной облас"
-FROM dds."опыт_сотрудника_в_предметных_обла";
-
-DELETE FROM datamart."опыт_сотрудника_в_отраслях"
-USING (SELECT "User ID",
-	        "Отрасли",
-	        "Дата",
-	         count(*) as "Счетчик дублей"
-	   FROM datamart."опыт_сотрудника_в_отраслях"
-	   GROUP BY "User ID",
-	        "Отрасли",
-	        "Дата"
-	   HAVING count(*) > 1) as t
-WHERE "опыт_сотрудника_в_отраслях"."User ID" = t."User ID" AND
-        "опыт_сотрудника_в_отраслях"."Отрасли" = t."Отрасли" AND
-        "опыт_сотрудника_в_отраслях"."Дата" = t."Дата" AND
-        "Уровень знаний в отрасли" = 'Junior';
-
-insert into datamart.опыт_сотрудника_в_отраслях (
-	"User ID",
-    "Отрасли",
-	"Дата",
-    "Уровень знаний в отрасли"
-    )
+	"id",
+	"emp_dim_key",
+	"sk_dim_key",
+	"sk_l_dim_key",
+	"sk_t_dim_key",
+	"is_skill",
+	"is_industry",
+	"date_dim_id"
+from dds.instruments_emp_skill_level
+inner join datamart.dim_employee
+on "user_id" = "emp_id"
+inner join datamart.dim_skill_types
+on "skill_type" = "type_of_skill"
+inner join datamart.dim_skills
+on "instruments" = "skill"
+inner join datamart.dim_date
+on "date"= "date_actual"
+inner join datamart.dim_skill_level
+on instruments_emp_skill_level."skill_level" = dim_skill_level."skill_level"
+where "sk_dim_key" between 18 and 42;
+insert into datamart.fact_skills (
+	"sk_f_id",
+	"emp_key",
+	"sk_dim_key",
+	"sk_l_dim_key",
+	"sk_t_dim_key",
+	"is_skill",
+	"is_industry",
+	"date_dim_id")
 select
-    distinct
-    "User ID",
-    "Отрасли",
-	date_actual as "Дата",
-    "Уровень знаний в отрасли"
-from datamart."опыт_сотрудника_в_отраслях" as exp
-full join public.d_date as d
-    on d.year_actual >= extract(year from exp."Дата")
-where
-    d.date_actual <= now()
-order by
-    date_actual;
-
-INSERT INTO datamart."образование_пользователей" 
-	("User ID", 
-	"Уровень образования",	
-	"Название учебного заведения", 
-	"Фиктивное название", 
-	"Факультет, кафедра", 
-	"Специальность", 
-	"Квалификация", 
-	"Год окончания") 
-SELECT 	"User ID", 
-	case when "Уровень образования" like any (array['Высшее (бакалавриат)',
-	'Бакалавр']) then 'бакалавриат'
-	when "Уровень образования" like any (array['Высшее (специалитет)'])
-	then 'специалитет'
-	when "Уровень образования" like any (array['Высшее (магистратура)'])
-	then 'магистратура'
-	when "Уровень образования" like any (array['Аспирантура, ординатура, адъюнктура',
-	'Кандидат наук'])
-	then 'аспирантура'
-	when "Уровень образования" like any (array['Среднее%', 'Сертификат', 'Удостоверение', 'Неполное высшее%',
-	'Свидетельство', 'Неполное высшее%']) then 'среднее'
-	when "Уровень образования" like any (array['Профессиональная%',
-	'Повышение квалификации', 'Дополнительное профессиональное образование'])
-	then 'проф. переподготовка'
-	when "Уровень образования" like any (array['Не указано', '-'])
-	then 'не указано'
-	else 'высшее'
-	end as "Уровень образования",
-	"Название учебного заведения",
-	"Фиктивное название", 
-	"Факультет, кафедра",
-	case when "Квалификация" = 'Экономист' then 'Экономист'
-	when "Квалификация" = 'Информатик-экономист' then 'Информатик-экономист'
-	when "Квалификация" = 'Бизнес-аналитик' then 'Бизнес-аналитик'
-	when "Квалификация" = 'Экономист-менеджер' then 'Экономист-менеджер'
-	when "Квалификация" = 'Техник' then 'Техник'
-	when "Квалификация" like '%нженер' then 'Инженер'
-	when "Квалификация" = 'Математик, системный программист'
-	then 'Математик, системный программист'
-	when "Специальность" like any (array['%рист%', '%риспруденция'])
-	then 'Юрист'
-	when "Специальность" like '%ехник'
-	then 'Техник'
-	when "Специальность" like any (array['%кономист', '%кономика'])
-	then 'Экономист'
-	when "Специальность" like any (array['%нженер', 'ИНЖЕНЕР']) then 'Инженер'
-	when "Специальность" like any (array['%енеджмент', '%енеджер'])
-	then 'Менеджмент'
-	when "Специальность" like any (array['%акалавр', '%агистр', '%специалист',
-	'Бакалавриат', 'бакалавар', '%агистр%', 'масгистр', 'Специалист'])
-	then 'Не указано'
-	when "Специальность" is null then 'Не указано'
-	else "Специальность"
-	end as "Специальность",
-	case when "Квалификация" like '%акалав%' then 'Бакалавр'
-	when "Квалификация" like '%агистр' then 'Магистр'
-	when "Квалификация" like '%пециалист%' then 'Специалист'
-	when "Специальность" like '%акалав%' then 'Бакалавр'
-	when "Специальность" like any (array['%агистр', 'масгистр'])
-	then 'Магистр'
-	when "Специальность" like '%пециалист' then 'Специалист'
-	else 'Не указано'
-	end as "Квалификация",
-	"Год окончания" 
-FROM dds."образование_пользователей";
-
-INSERT INTO datamart."платформы_и_уровень_знаний_сотруд" 
-	("User ID", 
-	"Платформы", 
-	"Дата", 
-	"Уровень знаний",
-	"Тип навыка") 
-SELECT distinct	"User ID",
-	"Платформы",
-	"Дата",
-	case when "Уровень знаний" = 'Novice' OR "Уровень знаний" = 'Данные отсутствуют'
-	then 'Junior'
-	when "Уровень знаний" = 'Expert' then 'Senior'
-	else "Уровень знаний" 
-	end as "Уровень знаний",
-	'Платформы' as "Тип навыка"
-FROM dds."платформы_и_уровень_знаний_сотруд";
-
-DELETE FROM datamart."платформы_и_уровень_знаний_сотруд"
-USING (SELECT "User ID",
-	        "Платформы",
-	        "Дата",
-	         count(*) as "Счетчик дублей"
-	   FROM datamart."платформы_и_уровень_знаний_сотруд"
-	   GROUP BY "User ID",
-	        "Платформы",
-	        "Дата"
-	   HAVING count(*) > 1) as t
-WHERE "платформы_и_уровень_знаний_сотруд"."User ID" = t."User ID" AND
-        "платформы_и_уровень_знаний_сотруд"."Платформы" = t."Платформы" AND
-        "платформы_и_уровень_знаний_сотруд"."Дата" = t."Дата" AND
-        "Уровень знаний" = 'Junior';
-
-insert into datamart.платформы_и_уровень_знаний_сотруд (
-	"User ID",
-	"Дата",
-    "Платформы",
-	"Уровень знаний",
-    "Тип навыка"
-    )
+	"id",
+	"emp_dim_key",
+	"sk_dim_key",
+	"sk_l_dim_key",
+	"sk_t_dim_key",
+	"is_skill",
+	"is_industry",
+	"date_dim_id"
+from dds.platforms_emp_skill_level
+inner join datamart.dim_employee
+on "user_id" = "emp_id"
+inner join datamart.dim_skill_types
+on "skill_type" = "type_of_skill"
+inner join datamart.dim_skills
+on "platforms" = "skill"
+inner join datamart.dim_date
+on "date"= "date_actual"
+inner join datamart.dim_skill_level
+on platforms_emp_skill_level."skill_level" = dim_skill_level."skill_level"
+where "sk_dim_key" between 43 and 82;
+insert into datamart.fact_skills (
+	"sk_f_id",
+	"emp_key",
+	"sk_dim_key",
+	"sk_l_dim_key",
+	"sk_t_dim_key",
+	"is_skill",
+	"is_industry",
+	"date_dim_id")
 select
-    distinct
-    "User ID",
-    date_actual as "Дата",
-    "Платформы",
-    "Уровень знаний",
-    "Тип навыка"
-from datamart."платформы_и_уровень_знаний_сотруд" as pl
-full join public.d_date as d
-    on d.year_actual >= extract(year from pl."Дата")
-where
-    d.date_actual <= now()
-order by
-    date_actual;
-
-INSERT INTO datamart."среды_разработки_и_уровень_знаний_"
-	("User ID", 
-	"Дата", 
-	"Среды разработки", 
-	"Уровень знаний",
-	"Тип навыка") 
-SELECT distinct "User ID",
-	"Дата", 
-	"Среды разработки",
-	case when "Уровень знаний" = 'Novice' OR "Уровень знаний" = 'Данные отсутствуют'
-	then 'Junior'
-	when "Уровень знаний" = 'Expert' then 'Senior'
-	else "Уровень знаний" 
-	end as "Уровень знаний",
-	'Среды разработки' as "Тип навыка"
-FROM dds."среды_разработки_и_уровень_знаний_";
-
-DELETE FROM datamart."среды_разработки_и_уровень_знаний_"
-USING (SELECT "User ID",
-	        "Среды разработки",
-	        "Дата",
-	         count(*) as "Счетчик дублей"
-	   FROM datamart."среды_разработки_и_уровень_знаний_"
-	   GROUP BY "User ID",
-	        "Среды разработки",
-	        "Дата"
-	   HAVING count(*) > 1) as t
-WHERE "среды_разработки_и_уровень_знаний_"."User ID" = t."User ID" AND
-        "среды_разработки_и_уровень_знаний_"."Среды разработки" = t."Среды разработки" AND
-        "среды_разработки_и_уровень_знаний_"."Дата" = t."Дата" AND
-        "Уровень знаний" = 'Junior';
-
-insert into datamart.среды_разработки_и_уровень_знаний_ (
-	"User ID",
-	"Дата",
-    "Среды разработки",
-	"Уровень знаний",
-    "Тип навыка"
-    )
+	"id",
+	"emp_dim_key",
+	"sk_dim_key",
+	"sk_l_dim_key",
+	"sk_t_dim_key",
+	"is_skill",
+	"is_industry",
+	"date_dim_id"
+from dds.frameworks_emp_skill_level
+inner join datamart.dim_employee
+on "user_id" = "emp_id"
+inner join datamart.dim_skill_types
+on "skill_type" = "type_of_skill"
+inner join datamart.dim_skills
+on "frameworks" = "skill"
+inner join datamart.dim_date
+on "date"= "date_actual"
+inner join datamart.dim_skill_level
+on frameworks_emp_skill_level."skill_level" = dim_skill_level."skill_level"
+where "sk_dim_key" between 83 and 99;
+insert into datamart.fact_skills (
+	"sk_f_id",
+	"emp_key",
+	"sk_dim_key",
+	"sk_l_dim_key",
+	"sk_t_dim_key",
+	"is_skill",
+	"is_industry",
+	"date_dim_id")
 select
-    distinct
-    "User ID",
-    date_actual as "Дата",
-    "Среды разработки",
-    "Уровень знаний",
-    "Тип навыка"
-from datamart.среды_разработки_и_уровень_знаний_ as s
-full join public.d_date as d
-    on d.year_actual >= extract(year from s."Дата")
-where
-    d.date_actual <= now()
-order by
-    date_actual;
-
-INSERT INTO datamart."типы_систем_и_уровень_знаний_сотру" 
-	("User ID", 
-	"Дата", 
-	"Типы систем", 
-	"Уровень знаний",
-	"Тип навыка") 
-SELECT distinct "User ID",
-	"Дата", 
-	"Типы систем", 
-	case when "Уровень знаний" = 'Novice' OR "Уровень знаний" = 'Данные отсутствуют'
-	then 'Junior'
-	when "Уровень знаний" = 'Expert' then 'Senior'
-	else "Уровень знаний" 
-	end as "Уровень знаний",
-	'Типы систем' as "Тип навыка"
-FROM dds."типы_систем_и_уровень_знаний_сотру";
-
-DELETE FROM datamart."типы_систем_и_уровень_знаний_сотру"
-USING (SELECT "User ID",
-	        "Типы систем",
-	        "Дата",
-	         count(*) as "Счетчик дублей"
-	   FROM datamart."типы_систем_и_уровень_знаний_сотру"
-	   GROUP BY "User ID",
-	        "Типы систем",
-	        "Дата"
-	   HAVING count(*) > 1) as t
-WHERE "типы_систем_и_уровень_знаний_сотру"."User ID" = t."User ID" AND
-        "типы_систем_и_уровень_знаний_сотру"."Типы систем" = t."Типы систем" AND
-        "типы_систем_и_уровень_знаний_сотру"."Дата" = t."Дата" AND
-        "Уровень знаний" = 'Junior';
-
-insert into datamart.типы_систем_и_уровень_знаний_сотру (
-	"User ID",
-	"Дата",
-    "Типы систем",
-    "Уровень знаний",
-    "Тип навыка"
-    )
+	"id",
+	"emp_dim_key",
+	"sk_dim_key",
+	"sk_l_dim_key",
+	"sk_t_dim_key",
+	"is_skill",
+	"is_industry",
+	"date_dim_id"
+from dds.progr_language_emp_skill_level
+inner join datamart.dim_employee
+on "user_id" = "emp_id"
+inner join datamart.dim_skill_types
+on "skill_type" = "type_of_skill"
+inner join datamart.dim_skills
+on "programming_languages" = "skill"
+inner join datamart.dim_date
+on "date"= "date_actual"
+inner join datamart.dim_skill_level
+on progr_language_emp_skill_level."skill_level" = dim_skill_level."skill_level"
+where "sk_dim_key" between 100 and 131;
+insert into datamart.fact_skills (
+	"sk_f_id",
+	"emp_key",
+	"sk_dim_key",
+	"sk_l_dim_key",
+	"sk_t_dim_key",
+	"is_skill",
+	"is_industry",
+	"date_dim_id")
 select
-    distinct
-    "User ID",
-    date_actual as "Дата",
-    "Типы систем",
-    "Уровень знаний",
-    "Тип навыка"
-from datamart."типы_систем_и_уровень_знаний_сотру" as ts
-full join public.d_date as d
-    on d.year_actual >= extract(year from ts."Дата")
-where
-    d.date_actual <= now()
-order by
-    date_actual;
-
-INSERT INTO datamart."фреймворки_и_уровень_знаний_сотру" 
-	("User ID", 
-	"Дата", 
-	"Фреймворки", 
-	"Уровень знаний",
-	"Тип навыка") 
-SELECT distinct "User ID",
-	"Дата", 
-	"Фреймворки", 
-	case when "Уровень знаний" = 'Novice' OR "Уровень знаний" = 'Данные отсутствуют'
-	then 'Junior'
-	when "Уровень знаний" = 'Expert' then 'Senior'
-	else "Уровень знаний" 
-	end as "Уровень знаний",
-	'Фреймворки' as "Тип навыка"
-FROM dds."фреймворки_и_уровень_знаний_сотру";
-
-DELETE FROM datamart."фреймворки_и_уровень_знаний_сотру"
-USING (SELECT "User ID",
-	        "Фреймворки",
-	        "Дата",
-	         count(*) as "Счетчик дублей"
-	   FROM datamart."фреймворки_и_уровень_знаний_сотру"
-	   GROUP BY "User ID",
-	        "Фреймворки",
-	        "Дата"
-	   HAVING count(*) > 1) as t
-WHERE "фреймворки_и_уровень_знаний_сотру"."User ID" = t."User ID" AND
-        "фреймворки_и_уровень_знаний_сотру"."Фреймворки" = t."Фреймворки" AND
-        "фреймворки_и_уровень_знаний_сотру"."Дата" = t."Дата" AND
-        "Уровень знаний" = 'Junior';
-
-insert into datamart.фреймворки_и_уровень_знаний_сотру (
-	"User ID",
-	"Дата",
-    "Фреймворки",
-	"Уровень знаний",
-    "Тип навыка"
-    )
+	"id",
+	"emp_dim_key",
+	"sk_dim_key",
+	"sk_l_dim_key",
+	"sk_t_dim_key",
+	"is_skill",
+	"is_industry",
+	"date_dim_id"
+from dds.type_of_system_emp_skill_level
+inner join datamart.dim_employee
+on "user_id" = "emp_id"
+inner join datamart.dim_skill_types
+on "skill_type" = "type_of_skill"
+inner join datamart.dim_skills
+on "type_of_system" = "skill"
+inner join datamart.dim_date
+on "date"= "date_actual"
+inner join datamart.dim_skill_level
+on type_of_system_emp_skill_level."skill_level" = dim_skill_level."skill_level"
+where "sk_dim_key" between 132 and 139;
+insert into datamart.fact_skills (
+	"sk_f_id",
+	"emp_key",
+	"sk_dim_key",
+	"sk_l_dim_key",
+	"sk_t_dim_key",
+	"is_skill",
+	"is_industry",
+	"date_dim_id")
 select
-    distinct
-    "User ID",
-    date_actual as "Дата",
-    "Фреймворки",
-    "Уровень знаний",
-    "Тип навыка"
-from datamart.фреймворки_и_уровень_знаний_сотру as f
-full join public.d_date as d
-    on d.year_actual >= extract(year from f."Дата")
-where
-    d.date_actual <= now()
-order by
-    date_actual;
-
-INSERT INTO datamart."языки_программирования_и_уровень" 
-	("User ID", 
-	"Дата", 
-	"Языки программирования", 
-	"Уровень знаний",
-	"Тип навыка") 
-SELECT distinct "User ID",
-	"Дата", 
-	"Языки программирования", 
-	case when "Уровень знаний" = 'Novice' OR "Уровень знаний" = 'Данные отсутствуют'
-	then 'Junior'
-	when "Уровень знаний" = 'Expert' then 'Senior'
-	else "Уровень знаний" 
-	end as "Уровень знаний",
-	'Языки программирования' as "Тип навыка"
-FROM dds."языки_программирования_и_уровень";
-
-DELETE FROM datamart."языки_программирования_и_уровень"
-USING (SELECT "User ID",
-	        "Языки программирования",
-	        "Дата",
-	         count(*) as "Счетчик дублей"
-	   FROM datamart."языки_программирования_и_уровень"
-	   GROUP BY "User ID",
-	        "Языки программирования",
-	        "Дата"
-	   HAVING count(*) > 1) as t
-WHERE "языки_программирования_и_уровень"."User ID" = t."User ID" AND
-        "языки_программирования_и_уровень"."Языки программирования" = t."Языки программирования" AND
-        "языки_программирования_и_уровень"."Дата" = t."Дата" AND
-        "Уровень знаний" = 'Junior';
-
-insert into datamart.языки_программирования_и_уровень (
-	"User ID",
-    "Языки программирования",
-	"Дата",
-    "Уровень знаний",
-    "Тип навыка"
-    )
+	"id",
+	"emp_dim_key",
+	"sk_dim_key",
+	"sk_l_dim_key",
+	"sk_t_dim_key",
+	"is_skill",
+	"is_industry",
+	"date_dim_id"
+from dds.ide_emp_skill_level
+inner join datamart.dim_employee
+on "user_id" = "emp_id"
+inner join datamart.dim_skill_types
+on "skill_type" = "type_of_skill"
+inner join datamart.dim_skills
+on "ide" = "skill"
+inner join datamart.dim_date
+on "date"= "date_actual"
+inner join datamart.dim_skill_level
+on ide_emp_skill_level."skill_level" = dim_skill_level."skill_level"
+where "sk_dim_key" between 140 and 145;
+insert into datamart.fact_skills (
+	"sk_f_id",
+	"emp_key",
+	"sk_dim_key",
+	"sk_l_dim_key",
+	"sk_t_dim_key",
+	"is_skill",
+	"is_industry",
+	"date_dim_id")
 select
-    distinct
-    "User ID",
-    "Языки программирования",
-	date_actual as "Дата",
-    "Уровень знаний",
-    "Тип навыка"
-from datamart."языки_программирования_и_уровень" as lan
-full join public.d_date as d
-    on d.year_actual >= extract(year from lan."Дата")
-where
-    d.date_actual <= now()
-order by
-    date_actual;
-
-INSERT INTO datamart."технологии_и_уровень_знаний_сотру" 
-	("User ID", 
-	"Дата", 
-	"Технологии",
-	"Уровень знаний",
-	"Тип навыка") 
-SELECT distinct "User ID",
-	"Дата", 
-	"Технологии", 
-	case when "Уровень знаний" = 'Novice' OR "Уровень знаний" = 'Данные отсутствуют'
-	then 'Junior'
-	when "Уровень знаний" = 'Expert' then 'Senior'
-	else "Уровень знаний" 
-	end as "Уровень знаний",
-	'Технологии' as "Тип навыка"
-FROM dds."технологии_и_уровень_знаний_сотру";
-
-DELETE FROM datamart."технологии_и_уровень_знаний_сотру"
-USING (SELECT "User ID",
-	        "Технологии",
-	        "Дата",
-	         count(*) as "Счетчик дублей"
-	   FROM datamart."технологии_и_уровень_знаний_сотру"
-	   GROUP BY "User ID",
-	        "Технологии",
-	        "Дата"
-	   HAVING count(*) > 1) as t
-WHERE "технологии_и_уровень_знаний_сотру"."User ID" = t."User ID" AND
-        "технологии_и_уровень_знаний_сотру"."Технологии" = t."Технологии" AND
-        "технологии_и_уровень_знаний_сотру"."Дата" = t."Дата" AND
-        "Уровень знаний" = 'Junior';
-
-insert into datamart.технологии_и_уровень_знаний_сотру (
-	"User ID",
-    "Технологии",
-	"Дата",
-    "Уровень знаний",
-    "Тип навыка"
-    )
+	"id",
+	"emp_dim_key",
+	"sk_dim_key",
+	"sk_l_dim_key",
+	"sk_t_dim_key",
+	"is_skill",
+	"is_industry",
+	"date_dim_id"
+from dds.industries_emp_skill_level
+inner join datamart.dim_employee
+on "user_id" = "emp_id"
+inner join datamart.dim_skill_types
+on "skill_type" = "type_of_skill"
+inner join datamart.dim_skills
+on "industries" = "skill"
+inner join datamart.dim_date
+on "date"= "date_actual"
+inner join datamart.dim_skill_level
+on industries_emp_skill_level."skill_level" = dim_skill_level."skill_level"
+where "sk_dim_key" between 146 and 167;
+insert into datamart.fact_skills (
+	"sk_f_id",
+	"emp_key",
+	"sk_dim_key",
+	"sk_l_dim_key",
+	"sk_t_dim_key",
+	"is_skill",
+	"is_industry",
+	"date_dim_id")
 select
-    distinct
-    "User ID",
-    "Технологии",
-	date_actual as "Дата",
-    "Уровень знаний",
-    "Тип навыка"
-from datamart."технологии_и_уровень_знаний_сотру" as t
-full join public.d_date as d
-    on d.year_actual >= extract(year from t."Дата")
-where
-    d.date_actual <= now()
-order by
-    date_actual;
+	"id",
+	"emp_dim_key",
+	"sk_dim_key",
+	"sk_l_dim_key",
+	'10'::int4,
+	'1':: boolean,
+	'0':: boolean,
+	"date_dim_id"
+from dds.foreign_language_emp_skill_level
+inner join datamart.dim_employee
+on "user_id" = "emp_id"
+inner join datamart.dim_skills
+on "foreign_language" = "skill"
+inner join datamart.dim_date
+on "date"= "date_actual"
+inner join datamart.dim_skill_level
+on foreign_language_emp_skill_level."foreign_language_level" = dim_skill_level."skill_level"
+where "sk_dim_key" between 168 and 172;

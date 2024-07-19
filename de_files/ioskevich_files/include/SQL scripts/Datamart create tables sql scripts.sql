@@ -1,102 +1,89 @@
-CREATE TABLE datamart.сотрудники_дар (
-	"User ID" int4 NULL PRIMARY KEY,
-	"Активность" boolean NULL,
-	"Должность" text NULL,
-	"Роль сотрудника" text NULL,
-	"Уровень знаний сотрудника" text NULL
+CREATE TABLE datamart.dim_date
+(
+  date_dim_id              INT NOT NULL,
+  date_actual              DATE NOT NULL,
+  epoch                    BIGINT NOT NULL,
+  day_suffix               VARCHAR(4) NOT NULL,
+  day_name                 VARCHAR(9) NOT NULL,
+  day_of_week              INT NOT NULL,
+  day_of_month             INT NOT NULL,
+  day_of_quarter           INT NOT NULL,
+  day_of_year              INT NOT NULL,
+  week_of_month            INT NOT NULL,
+  week_of_year             INT NOT NULL,
+  week_of_year_iso         CHAR(10) NOT NULL,
+  month_actual             INT NOT NULL,
+  month_name               VARCHAR(9) NOT NULL,
+  month_name_abbreviated   CHAR(3) NOT NULL,
+  quarter_actual           INT NOT NULL,
+  quarter_name             VARCHAR(9) NOT NULL,
+  year_actual              INT NOT NULL,
+  first_day_of_week        DATE NOT NULL,
+  last_day_of_week         DATE NOT NULL,
+  first_day_of_month       DATE NOT NULL,
+  last_day_of_month        DATE NOT NULL,
+  first_day_of_quarter     DATE NOT NULL,
+  last_day_of_quarter      DATE NOT NULL,
+  first_day_of_year        DATE NOT NULL,
+  last_day_of_year         DATE NOT NULL,
+  mmyyyy                   CHAR(6) NOT NULL,
+  mmddyyyy                 CHAR(10) NOT NULL,
+  weekend_indr             BOOLEAN NOT NULL
 );
 
-CREATE TABLE datamart.языки_пользователей (
-	"User ID" int4 NULL,
-	"Дата" date NULL,
-	"Язык" text NULL,
-	"Уровень знаний ин. языка" text NULL
+ALTER TABLE datamart.dim_date ADD CONSTRAINT d_date_date_dim_id_pk PRIMARY KEY (date_dim_id);
+
+CREATE INDEX d_date_date_actual_idx
+  ON datamart.dim_date(date_actual);
+
+CREATE TABLE datamart.dim_employee (
+    "emp_dim_key" SERIAL PRIMARY KEY,
+	"emp_id" int4 NULL,
+	"emp_active" boolean NULL,
+	"emp_job_title" text NULL,
+	"emp_role" text NULL,
+	"emp_level" text NULL
 );
 
-CREATE TABLE datamart.сертификаты_пользователей (
-	"User ID" int4 NULL,
-	"Год сертификата" int4 NULL,
-	"Наименование сертификата" text NULL
+CREATE TABLE datamart.dim_skills (
+	sk_dim_key serial4 NOT NULL,
+	sk_id int4 NULL,
+	skill text NULL,
+	sk_type int4 NULL,
+	CONSTRAINT dim_skills_pkey PRIMARY KEY (sk_dim_key),
+	CONSTRAINT f_dim_sk FOREIGN KEY (sk_type) REFERENCES datamart.dim_skill_types(sk_t_dim_key)
 );
 
-CREATE TABLE datamart.базы_данных_и_уровень_знаний_сотру (
-	"User ID" int4 NULL,
-	"Базы данных" varchar(50) NULL,
-	"Дата" date NULL,
-	"Уровень знаний" varchar(50) null,
-	"Тип навыка" varchar(50) null
+CREATE TABLE datamart.dim_skill_level (
+    "sk_l_dim_key" SERIAL PRIMARY KEY,
+    "sk_l_id" int4 null,
+    "skill_level" text null
 );
 
-CREATE TABLE datamart.инструменты_и_уровень_знаний_сотр (
-	"User ID" int4 NULL,
-	"Дата" date NULL,
-	"Инструменты" varchar(64) NULL,
-	"Уровень знаний" varchar(50) NULL,
-	"Тип навыка" varchar(50) null
+CREATE TABLE datamart.dim_skill_types (
+    "sk_t_dim_key" SERIAL PRIMARY KEY,
+    "skill_type" text NULL,
+    "is_skill" boolean NULL,
+    "is_industry" boolean NULL
 );
 
-CREATE TABLE datamart.опыт_сотрудника_в_отраслях (
-	"User ID" int4 NULL,
-	"Дата" date NULL,
-	"Отрасли" varchar(50) NULL,
-	"Уровень знаний в отрасли" varchar(128) NULL
+CREATE TABLE datamart.fact_skills (
+	sk_f_key serial4 NOT NULL,
+	sk_f_id int4 NULL,
+	emp_key int4 NULL,
+	sk_dim_key int4 NULL,
+	sk_l_dim_key int4 NULL,
+	sk_t_dim_key int4 NULL,
+	is_skill bool NULL,
+	is_industry bool NULL,
+	date_dim_id int4 NULL,
+	CONSTRAINT fact_skills_pkey PRIMARY KEY (sk_f_key),
+	CONSTRAINT f_dim_d FOREIGN KEY (date_dim_id) REFERENCES datamart.dim_date(date_dim_id),
+	CONSTRAINT f_dim_emp FOREIGN KEY (emp_key) REFERENCES datamart.dim_employee(emp_dim_key),
+	CONSTRAINT f_dim_sk FOREIGN KEY (sk_dim_key) REFERENCES datamart.dim_skills(sk_dim_key),
+	CONSTRAINT f_dim_sk_l FOREIGN KEY (sk_l_dim_key) REFERENCES datamart.dim_skill_level(sk_l_dim_key),
+	CONSTRAINT f_dim_sk_t FOREIGN KEY (sk_t_dim_key) REFERENCES datamart.dim_skill_types(sk_t_dim_key)
 );
 
-CREATE TABLE datamart.образование_пользователей (
-	"User ID" int4 NULL,
-	"Уровень образования" text NULL,
-	"Название учебного заведения" text NULL,
-	"Фиктивное название" text NULL,
-	"Факультет, кафедра" text NULL,
-	"Специальность" text NULL,
-	"Квалификация" text NULL,
-	"Год окончания" int4 NULL
-);
 
-CREATE TABLE datamart.платформы_и_уровень_знаний_сотруд (
-	"User ID" int4 NULL,
-	"Дата" date NULL,
-	"Платформы" varchar(64) NULL,
-	"Уровень знаний" varchar(50) NULL,
-	"Тип навыка" varchar(50) null	
-);
 
-CREATE TABLE datamart.среды_разработки_и_уровень_знаний_ (
-	"User ID" int4 NULL,
-	"Дата" date NULL,
-	"Среды разработки" varchar(50) NULL,
-	"Уровень знаний" varchar(50) NULL,
-	"Тип навыка" varchar(50) NULL
-);
-
-CREATE TABLE datamart.типы_систем_и_уровень_знаний_сотру (
-	"User ID" int4 NULL,
-	"Дата" date NULL,
-	"Типы систем" varchar(64) NULL,
-	"Уровень знаний" varchar(50) NULL,
-	"Тип навыка" varchar(50) NULL
-);
-
-CREATE TABLE datamart.фреймворки_и_уровень_знаний_сотру (
-	"User ID" int4 NULL,
-	"Дата" date NULL,
-	"Фреймворки" text NULL,
-	"Уровень знаний" text NULL,
-	"Тип навыка" text NULL
-);
-
-CREATE TABLE datamart.языки_программирования_и_уровень (
-	"User ID" int4 NULL,
-	"Дата" date NULL,
-	"Языки программирования" text NULL,
-	"Уровень знаний" text NULL,
-	"Тип навыка" text NULL
-);
-
-CREATE TABLE datamart.технологии_и_уровень_знаний_сотру (
-	"User ID" int4 NULL,
-	"Дата" date NULL,
-	"Технологии" text NULL,
-	"Уровень знаний" text NULL,
-	"Тип навыка" text NULL
-);
