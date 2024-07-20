@@ -77,14 +77,6 @@ FROM (SELECT '1997-07-02'::DATE+ SEQUENCE.DAY AS datum
       FROM GENERATE_SERIES (0,29219) AS SEQUENCE (DAY)
       GROUP BY SEQUENCE.DAY) DQ
 ORDER BY 1;
-CREATE TABLE dds.type_of_system_emp_skill_level (
-	"user_id" int4 NULL,
-	"id" int4 null,
-	"type_of_system" text NULL,
-	"date" date NULL,
-	"skill_level" text NULL,
-	"type_of_skill" text null
-);
 
 CREATE TABLE datamart.dim_employee (
     "emp_dim_key" SERIAL PRIMARY KEY,
@@ -116,6 +108,21 @@ CREATE TABLE datamart.dim_skill_types (
     "is_skill" boolean NULL,
     "is_industry" boolean NULL
 );
+INSERT INTO datamart.dim_skill_types (
+    "skill_type",
+    "is_skill",
+    "is_industry"
+)
+values ('Базы данных', 1::boolean, 0::boolean),
+	('Инструменты', 1::boolean, 0::boolean),
+	('Платформы', 1::boolean, 0::boolean),
+	('Технологии', 1::boolean, 0::boolean),
+	('Фреймворки', 1::boolean, 0::boolean),
+	('Языки программирования', 1::boolean, 0::boolean),
+	('Типы систем', 1::boolean, 0::boolean),
+	('Среды разработки', 1::boolean, 0::boolean),
+	('Отрасли', 0::boolean, 1::boolean),
+	('Иностранные языки', 1::boolean, 0::boolean)
 
 CREATE TABLE datamart.fact_skills (
 	sk_f_key serial4 NOT NULL,

@@ -14,22 +14,6 @@ SELECT
 	"emp_level"
 from dds.employees;
 
-INSERT INTO datamart.dim_skill_types (
-    "skill_type",
-    "is_skill",
-    "is_industry"
-)
-values ('Базы данных', 1::boolean, 0::boolean),
-	('Инструменты', 1::boolean, 0::boolean),
-	('Платформы', 1::boolean, 0::boolean),
-	('Технологии', 1::boolean, 0::boolean),
-	('Фреймворки', 1::boolean, 0::boolean),
-	('Языки программирования', 1::boolean, 0::boolean),
-	('Типы систем', 1::boolean, 0::boolean),
-	('Среды разработки', 1::boolean, 0::boolean),
-	('Отрасли', 0::boolean, 1::boolean),
-	('Иностранные языки', 1::boolean, 0::boolean)
-
 insert into datamart.dim_skill_level (
 	"sk_l_id",
 	"skill_level")
@@ -66,7 +50,7 @@ insert into datamart.dim_skills (
 select "id",
 	"name",
 	3
-from dds.technologies ;
+from dds.platforms ;
 insert into datamart.dim_skills (
 	"sk_id",
 	"skill",
@@ -74,7 +58,7 @@ insert into datamart.dim_skills (
 select "id",
 	"name",
 	4
-from dds.platforms ;
+from dds.technologies ;
 insert into datamart.dim_skills (
 	"sk_id",
 	"skill",
@@ -153,7 +137,7 @@ inner join datamart.dim_date
 on "date"= "date_actual"
 inner join datamart.dim_skill_level
 on databases_emp_skill_level."skill_level" = dim_skill_level."skill_level"
-where "sk_dim_key" between 1 and 17;
+where "sk_type" = "sk_t_dim_key";
 insert into datamart.fact_skills (
 	"sk_f_id",
 	"emp_key",
@@ -183,7 +167,7 @@ inner join datamart.dim_date
 on "date"= "date_actual"
 inner join datamart.dim_skill_level
 on instruments_emp_skill_level."skill_level" = dim_skill_level."skill_level"
-where "sk_dim_key" between 18 and 42;
+where "sk_type" = "sk_t_dim_key";
 insert into datamart.fact_skills (
 	"sk_f_id",
 	"emp_key",
@@ -213,7 +197,7 @@ inner join datamart.dim_date
 on "date"= "date_actual"
 inner join datamart.dim_skill_level
 on technologies_emp_skill_level."skill_level" = dim_skill_level."skill_level"
-where "sk_dim_key" between 43 and 97;
+where "sk_type" = "sk_t_dim_key";
 insert into datamart.fact_skills (
 	"sk_f_id",
 	"emp_key",
@@ -243,7 +227,7 @@ inner join datamart.dim_date
 on "date"= "date_actual"
 inner join datamart.dim_skill_level
 on platforms_emp_skill_level."skill_level" = dim_skill_level."skill_level"
-where "sk_dim_key" between 98 and 137;
+where "sk_type" = "sk_t_dim_key";
 insert into datamart.fact_skills (
 	"sk_f_id",
 	"emp_key",
@@ -273,7 +257,7 @@ inner join datamart.dim_date
 on "date"= "date_actual"
 inner join datamart.dim_skill_level
 on frameworks_emp_skill_level."skill_level" = dim_skill_level."skill_level"
-where "sk_dim_key" between 138 and 154;
+where "sk_type" = "sk_t_dim_key";
 insert into datamart.fact_skills (
 	"sk_f_id",
 	"emp_key",
@@ -303,7 +287,7 @@ inner join datamart.dim_date
 on "date"= "date_actual"
 inner join datamart.dim_skill_level
 on progr_language_emp_skill_level."skill_level" = dim_skill_level."skill_level"
-where "sk_dim_key" between 155 and 186;
+where "sk_type" = "sk_t_dim_key";
 insert into datamart.fact_skills (
 	"sk_f_id",
 	"emp_key",
@@ -333,7 +317,7 @@ inner join datamart.dim_date
 on "date"= "date_actual"
 inner join datamart.dim_skill_level
 on type_of_system_emp_skill_level."skill_level" = dim_skill_level."skill_level"
-where "sk_dim_key" between 187 and 194;
+where "sk_type" = "sk_t_dim_key";
 insert into datamart.fact_skills (
 	"sk_f_id",
 	"emp_key",
@@ -363,7 +347,7 @@ inner join datamart.dim_date
 on "date"= "date_actual"
 inner join datamart.dim_skill_level
 on ide_emp_skill_level."skill_level" = dim_skill_level."skill_level"
-where "sk_dim_key" between 196 and 200;
+where "sk_type" = "sk_t_dim_key";
 insert into datamart.fact_skills (
 	"sk_f_id",
 	"emp_key",
@@ -393,7 +377,7 @@ inner join datamart.dim_date
 on "date"= "date_actual"
 inner join datamart.dim_skill_level
 on industries_emp_skill_level."skill_level" = dim_skill_level."skill_level"
-where "sk_dim_key" between 201 and 221;
+where "sk_type" = "sk_t_dim_key";
 insert into datamart.fact_skills (
 	"sk_f_id",
 	"emp_key",
@@ -408,7 +392,7 @@ select
 	"emp_dim_key",
 	"sk_dim_key",
 	"sk_l_dim_key",
-	'10'::int4,
+	10,
 	'1':: boolean,
 	'0':: boolean,
 	"date_dim_id"
@@ -421,4 +405,4 @@ inner join datamart.dim_date
 on "date"= "date_actual"
 inner join datamart.dim_skill_level
 on foreign_language_emp_skill_level."foreign_language_level" = dim_skill_level."skill_level"
-where "sk_dim_key" between 222 and 227;
+where "sk_type" = 10 ;
