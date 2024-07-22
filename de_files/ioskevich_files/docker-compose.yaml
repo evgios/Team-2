@@ -61,7 +61,9 @@ x-airflow-common:
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: 'true'
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
-    AIRFLOW__SECRETS__BACKEND_KWARGS: '{"connections_file_path": "/include/connections/conn_etl_db_2.yaml", "variables_file_path": "/include/connections/sourse_connect.yaml"}'
+    AIRFLOW__SECRETS__BACKEND: airflow.secrets.local_filesystem.LocalFilesystemBackend
+    AIRFLOW__SECRETS__BACKEND_KWARGS: '{"connections_file_path": "/opt/airflow/config/connections.json"}'
+    AIRFLOW_CONN_YOURCONNECTION: "/opt/airflow/config/connections.json"
     # yamllint disable rule:line-length
     # Use simple http server on scheduler for health checks
     # See https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/logging-monitoring/check-health.html#scheduler-health-check-server
@@ -240,6 +242,17 @@ services:
         chown -R "${AIRFLOW_UID}:0" /sources/{logs,dags,plugins,include}
         exec /entrypoint airflow version
     # yamllint enable rule:line-length
+
+  airflow-init-variables-dev:
+    <<: *airflow-common
+    entrypoint: /bin/bash
+    # yamllint disable rule:line-length
+    command:
+      - -c
+      - |
+      - airflow connections import --overwrite /opt/airflow/config/connections.json;
+    user: "0:0"
+
     environment:
       <<: *airflow-common-env
       _AIRFLOW_DB_MIGRATE: 'true'
@@ -247,7 +260,6 @@ services:
       _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-airflow}
       _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-airflow}
       _PIP_ADDITIONAL_REQUIREMENTS: ''
-    user: "0:0"
     volumes:
       - ${AIRFLOW_PROJ_DIR:-.}:/sources
 
@@ -285,6 +297,8 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+
+
 
 volumes:
   postgres-db-volume:
