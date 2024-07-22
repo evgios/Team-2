@@ -1,3 +1,5 @@
+delete from dds.employees ;
+
 INSERT INTO dds.employees (
 	"user_id",
 	"active",
@@ -47,6 +49,8 @@ SELECT "id",
 FROM ods."сотрудники_дар"
 where length("должность") != 0;
 
+delete from dds.databases ;
+
 insert into dds.databases (
 	"name",
 	"date",
@@ -56,6 +60,11 @@ SELECT distinct
 	CAST(replace("Дата изм.", ' %', '') AS date),
 	"id"
 FROM ods.базы_данных;
+UPDATE dds.databases
+  SET "date" = "date" - make_interval(years => 100)
+where "date" = '2123-07-20';
+
+delete from dds.databases_emp_skill_level ;
 
 INSERT INTO dds.databases_emp_skill_level (
 	"user_id",
@@ -83,6 +92,12 @@ SELECT distinct
 FROM ods."базы_данных_и_уровень_знаний_сотру"
 where CAST(substring("название", 6, length("название")-5) as int4)
 	in (select "user_id" from dds.employees);
+UPDATE dds.databases_emp_skill_level
+  SET "date" = "date" - make_interval(years => 100)
+where "date" in ('2119-04-01', '2123-07-20');
+UPDATE dds.databases_emp_skill_level
+  SET"date" = "date" - make_interval(years => 200)
+where "date" = '2221-02-01';
 DELETE FROM dds.databases_emp_skill_level
 USING (SELECT "user_id",
 	        "databases",
@@ -121,6 +136,8 @@ where
 order by
     date_actual;
 
+delete from dds.foreign_language_emp_skill_level ;
+
 INSERT INTO dds.foreign_language_emp_skill_level
 	("user_id",
 	"date",
@@ -142,6 +159,8 @@ FROM ods."языки_пользователей"
 where "название" like 'User:%' and CAST(substring("название", 6, length("название")-5) as int4)
 	in (select "user_id" from dds.employees);
 
+delete from dds.certificates ;
+
 INSERT INTO dds.certificates
 	("user_id",
 	"date_of_modification",
@@ -159,6 +178,8 @@ SELECT distinct
 from ods."сертификаты_пользователей"
 where "User ID" in (select "user_id" from dds.employees);
 
+delete from dds.instruments ;
+
 insert into dds.instruments (
 	"name",
 	"date",
@@ -170,6 +191,8 @@ SELECT distinct
 	"id"
 FROM ods.инструменты;
 
+delete from dds.technologies ;
+
 insert into dds.technologies (
 	"name",
 	"date",
@@ -180,6 +203,8 @@ SELECT distinct
 	CAST(replace("Дата изм.", ' %', '') AS date),
 	"id"
 FROM ods.технологии;
+
+delete from dds.instruments_emp_skill_level ;
 
 INSERT INTO dds.instruments_emp_skill_level (
 	"user_id",
@@ -245,6 +270,7 @@ where
 order by
     date_actual;
 
+delete from dds.industries_emp_skill_level ;
 
 INSERT INTO dds.industries_emp_skill_level (
 	"user_id",
@@ -340,6 +366,8 @@ where
 order by
     date_actual;
 
+delete from dds.education_of_emp ;
+
 INSERT INTO dds.education_of_emp
 	("user_id",
 	"id",
@@ -420,11 +448,15 @@ SELECT distinct
 FROM ods."образование_пользователей"
 where "User ID" in (select "user_id" from dds.employees);
 
+delete from dds.education_level ;
+
 insert into dds.education_level (
 	"name")
 SELECT distinct
 	"education_level"
 FROM dds.education_of_emp;
+
+delete from dds.skill_level ;
 
 insert into dds.skill_level (
 	"name",
@@ -438,6 +470,8 @@ SELECT
 FROM ods.уровни_знаний
 where "название" != 'Novice' and "название" != 'Expert';
 
+delete from dds.foreign_languages_level ;
+
 insert into dds.foreign_languages_level (
 	"name",
 	"date",
@@ -448,6 +482,8 @@ SELECT distinct
 	CAST(replace("Дата изм.", ' %', '') AS date),
 	"id"
 FROM ods.уровни_владения_ин;
+
+delete from dds.platforms ;
 
 insert into dds.platforms (
 	"name",
@@ -460,6 +496,8 @@ SELECT distinct
 	"id"
 FROM ods.платформы;
 
+delete from dds.ide ;
+
 insert into dds.ide (
 	"name",
 	"date",
@@ -469,6 +507,8 @@ SELECT distinct
 	CAST(replace("Дата изм.", ' %', '') AS date),
 	"id"
 FROM ods.среды_разработки;
+
+delete from dds.platforms_emp_skill_level ;
 
 INSERT INTO dds.platforms_emp_skill_level (
 	"user_id",
@@ -533,6 +573,8 @@ where
 order by
     date_actual;
 
+delete from dds.progr_language ;
+
 insert into dds.progr_language (
 	"name",
 	"date",
@@ -543,6 +585,8 @@ SELECT
 	CAST(replace("Дата изм.", ' %', '') AS date),
 	"id"
 FROM ods.языки_программирования ;
+
+delete from dds.ide_emp_skill_level ;
 
 INSERT INTO dds.ide_emp_skill_level (
 	"user_id",
@@ -570,6 +614,7 @@ SELECT distinct
 FROM ods.среды_разработки_и_уровень_знаний_
 where CAST(substring("название", 6, length("название")-5) as int4)
 	in (select "user_id" from dds.employees);
+
 DELETE FROM dds.ide_emp_skill_level
 USING (SELECT "user_id",
 	        "ide",
@@ -608,6 +653,8 @@ where
 order by
     date_actual;
 
+delete from dds.industries ;
+
 insert into dds.industries (
 	"name",
 	"date",
@@ -627,6 +674,8 @@ SELECT distinct
 	"id"
 FROM ods.предметная_область ;
 
+delete from dds.frameworks ;
+
  insert into dds.frameworks (
 	"name",
 	"date",
@@ -636,6 +685,8 @@ SELECT distinct
 	CAST(replace("Дата изм.", ' %', '') AS date),
 	"id"
 FROM ods.фреймворки ;
+
+delete from dds.foreign_languages ;
 
 insert into dds.foreign_languages (
 	"name",
@@ -647,6 +698,8 @@ SELECT distinct
 	"id"
 FROM ods.языки ;
 
+delete from dds.type_of_system ;
+
 insert into dds.type_of_system (
 	"name",
 	"date",
@@ -656,6 +709,8 @@ SELECT distinct
 	CAST(replace("Дата изм.", ' %', '') AS date),
 	"id"
 FROM ods.типы_систем ;
+
+delete from dds.type_of_system_emp_skill_level ;
 
 INSERT INTO dds.type_of_system_emp_skill_level (
 	"user_id",
@@ -721,6 +776,8 @@ where
 order by
     date_actual;
 
+delete from dds.frameworks_emp_skill_level ;
+
 INSERT INTO dds.frameworks_emp_skill_level (
 	"user_id",
 	"id",
@@ -785,6 +842,8 @@ where
 order by
     date_actual;
 
+delete from dds.progr_language_emp_skill_level ;
+
 INSERT INTO dds.progr_language_emp_skill_level (
 	"user_id",
 	"id",
@@ -848,6 +907,8 @@ where
     and to_char(d.date_actual, 'MM-DD') = '01-01'
 order by
     date_actual;
+
+delete from dds.technologies_emp_skill_level ;
 
 INSERT INTO dds.technologies_emp_skill_level (
 	"user_id",
