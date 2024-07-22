@@ -614,7 +614,6 @@ SELECT distinct
 FROM ods.среды_разработки_и_уровень_знаний_
 where CAST(substring("название", 6, length("название")-5) as int4)
 	in (select "user_id" from dds.employees);
-
 DELETE FROM dds.ide_emp_skill_level
 USING (SELECT "user_id",
 	        "ide",
@@ -962,7 +961,7 @@ select
     "user_id",
     "id",
     "technologies",
-    date_actual,
+    "date_actual",
     "skill_level",
     "type_of_skill"
 from dds."technologies_emp_skill_level" as bd

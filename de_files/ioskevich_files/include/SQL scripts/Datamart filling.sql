@@ -1,3 +1,6 @@
+delete from datamart.fact_skills ;
+delete from datamart.dim_skills ;
+delete from datamart.dim_employee ;
 
 INSERT INTO datamart.dim_employee (
 	"emp_id",
@@ -13,6 +16,8 @@ SELECT
 	"emp_role",
 	"emp_level"
 from dds.employees;
+
+delete from datamart.dim_skill_level ;
 
 insert into datamart.dim_skill_level (
 	"sk_l_id",

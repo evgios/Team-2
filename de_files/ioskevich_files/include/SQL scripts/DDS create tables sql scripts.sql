@@ -163,14 +163,6 @@ CREATE TABLE dds.ide_emp_skill_level (
 	"type_of_skill" text null
 );
 
-CREATE TABLE dds.type_of_system_emp_skill_level (
-	"user_id" int4 NULL,
-	"id" int4 null,
-	"type_of_system" text NULL,
-	"date" date NULL,
-	"skill_level" text NULL,
-	"type_of_skill" text null
-);
 
 CREATE TABLE dds.frameworks_emp_skill_level (
 	"user_id" int4 NULL,
