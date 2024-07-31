@@ -6,7 +6,7 @@ INSERT INTO dds.employees (
 	"job_title",
 	"emp_role",
 	"emp_level")
-SELECT "id",
+SELECT distinct "id",
 	case when "активность" = 'Да' then 'yes'::boolean
 	when "активность" = 'Нет' then 'no'::boolean
 	end as "активность",
@@ -158,6 +158,27 @@ SELECT distinct
 FROM ods."языки_пользователей"
 where "название" like 'User:%' and CAST(substring("название", 6, length("название")-5) as int4)
 	in (select "user_id" from dds.employees);
+insert into dds.foreign_language_emp_skill_level (
+	"user_id",
+	"date",
+	"id",
+	"foreign_language",
+	"foreign_language_level")
+select
+    distinct
+    "user_id",
+     date_actual,
+    "id",
+	"foreign_language",
+	"foreign_language_level"
+from dds."foreign_language_emp_skill_level" as bd
+full join datamart.dim_date as d
+    on d.year_actual >= extract(year from bd."date")
+where
+    d.date_actual <= now()  and d.date_actual >= '22.08.2019'
+    and to_char(d.date_actual, 'MM-DD') = '01-01'
+order by
+    date_actual;
 
 delete from dds.certificates ;
 
