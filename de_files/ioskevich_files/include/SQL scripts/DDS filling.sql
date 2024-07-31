@@ -47,7 +47,7 @@ SELECT distinct "id",
 	ELSE 'Уровень не указан'
 	END AS "employee_level"
 FROM ods."сотрудники_дар"
-where length("должность") != 0;
+where length("должность") != 0 and "должность" != '-';
 
 delete from dds.databases ;
 
